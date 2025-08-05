@@ -11,3 +11,4 @@ const exporters = [
 (async () => {
   await Promise.all(exporters.map(exporter => exporter.export()));
 })();
+

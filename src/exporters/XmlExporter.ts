@@ -1,25 +1,25 @@
 import { DataExporter } from './DataExporter';
-import fs from 'fs/promises';
+import * as fs from 'fs';
 
 export class XmlExporter extends DataExporter {
   protected render(): void {
-    const usersXml = this.users.map(u => `
-  <user>
-    <id>${u.id}</id>
-    <name>${u.name}</name>
-    <email>${u.email}</email>
-    <phone>${u.phone}</phone>
-  </user>`).join('');
+    const users = this.data.map(user => {
+      return `  <user>
+    <id>${user.id}</id>
+    <name>${user.name}</name>
+    <email>${user.email}</email>
+    <phone>${user.phone}</phone>
+  </user>`;
+    }).join('\n');
 
-    this.result = `<?xml version="1.0" encoding="UTF-8"?>\n<users>${usersXml}\n</users>`;
+    this.result = `<?xml version="1.0" encoding="UTF-8"?>\n<users>\n${users}\n</users>`;
   }
 
   protected afterRender(): void {
     this.result += `\n<!-- Експорт згенеровано: ${new Date().toISOString()} -->`;
   }
 
-  protected async save(): Promise<void> {
-    await fs.writeFile('users.xml', this.result, 'utf-8');
+  protected save(): void {
+    fs.writeFileSync('users.xml', this.result, 'utf-8');
   }
 }
-

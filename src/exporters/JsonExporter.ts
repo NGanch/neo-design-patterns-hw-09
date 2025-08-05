@@ -1,12 +1,13 @@
 import { DataExporter } from './DataExporter';
-import fs from 'fs/promises';
+import * as fs from 'fs';
 
 export class JsonExporter extends DataExporter {
   protected render(): void {
-    this.result = JSON.stringify(this.users, null, 2);
+    this.result = JSON.stringify(this.data, null, 2);
   }
 
-  protected async save(): Promise<void> {
-    await fs.writeFile('users.json', this.result, 'utf-8');
+  protected save(): void {
+    fs.writeFileSync('users.json', this.result, 'utf-8');
   }
 }
+

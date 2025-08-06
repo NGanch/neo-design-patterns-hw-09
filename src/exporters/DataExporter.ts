@@ -1,37 +1,39 @@
-import axios from 'axios';
-import { UserData } from '../data/UserData';
-import * as fs from 'fs';
+import { UserData } from "../data/UserData";
+// import fetch from "node-fetch";
 
 export abstract class DataExporter {
   protected data: UserData[] = [];
-  protected result: string = '';
+  protected result: string = "";
 
-  public async export(): Promise<void> {
+  public async export() {
     await this.load();
     this.transform();
     this.beforeRender();
-    this.render();
+    this.result = this.render();
     this.afterRender();
     this.save();
   }
 
-  protected async load(): Promise<void> {
-    const response = await axios.get<UserData[]>('https://jsonplaceholder.typicode.com/users');
-    this.data = response.data;
+  protected async load() {
+    const response = await fetch("https://jsonplaceholder.typicode.com/users");
+    const rawData = await response.json();
+    this.data = rawData.map((user: any) => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+    }));
   }
 
-  protected transform(): void {
-    this.data = this.data
-      .map(({ id, name, email, phone }) => ({ id, name, email, phone }))
-      .sort((a, b) => a.name.localeCompare(b.name));
+  protected transform() {
+    this.data.sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  protected beforeRender(): void {}
+  protected beforeRender() {}
 
-  protected abstract render(): void;
+  protected afterRender() {}
 
-  protected afterRender(): void {}
-
+  protected abstract render(): string;
   protected abstract save(): void;
 }
 

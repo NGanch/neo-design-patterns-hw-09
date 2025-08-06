@@ -1,18 +1,22 @@
-import { DataExporter } from './DataExporter';
-import * as fs from 'fs';
+import { DataExporter } from "./DataExporter";
+import { writeFileSync, existsSync, mkdirSync } from "fs";
+import { dirname } from "path";
 
 export class XmlExporter extends DataExporter {
-  protected render(): void {
-    const users = this.data.map(user => {
-      return `  <user>
+  protected render(): string {
+    const usersXml = this.data
+      .map(
+        (user) => `
+  <user>
     <id>${user.id}</id>
     <name>${user.name}</name>
     <email>${user.email}</email>
     <phone>${user.phone}</phone>
-  </user>`;
-    }).join('\n');
+  </user>`
+      )
+      .join("");
 
-    this.result = `<?xml version="1.0" encoding="UTF-8"?>\n<users>\n${users}\n</users>`;
+    return `<?xml version="1.0" encoding="UTF-8"?>\n<users>${usersXml}\n</users>`;
   }
 
   protected afterRender(): void {
@@ -20,6 +24,9 @@ export class XmlExporter extends DataExporter {
   }
 
   protected save(): void {
-    fs.writeFileSync('users.xml', this.result, 'utf-8');
+    const filePath = "./dist/users.xml";
+    const dir = dirname(filePath);
+    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+    writeFileSync(filePath, this.result, "utf-8");
   }
 }
